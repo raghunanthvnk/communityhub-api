@@ -1,0 +1,23 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: communityhub-dev
+# bases:
+  # - ../../../base/apps/init
+  # # - ../../../base/apps/mysqlrouter    # reusing mysqlrouter in dev/qa environment
+  # - ../../../base/apps/services
+  # - ../../../base/apps/cert-manager
+  # - ../../../base/apps/redis
+  # - ../../../base/apps/rabbitmq
+resources:
+ - namespace.yaml
+ - mongo-secret.yaml
+ - mongo-config.yaml
+ - mongo-deployment.yaml
+ - mongo-service.yaml
+ - communityhub-deployment.yaml
+ - communityhub-service.yaml
+patchesStrategicMerge:
+  - communityhub-deployment.yaml
+images:
+  - name: raghunathkoppuravuri/communityhub-api
+    newTag: "1.3"

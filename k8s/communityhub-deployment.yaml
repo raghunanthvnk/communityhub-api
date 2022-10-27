@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: communityhub-api-app
+  name: communityhub-api-app
+  namespace: communityhub-dev
+spec:
+  replicas: 1
+  revisionHistoryLimit: 1
+  selector:
+    matchLabels:
+      app: communityhub-api-app
+  template:
+    metadata:
+      labels:
+        app: communityhub-api-app
+    spec:
+      containers:
+      - image: raghunathkoppuravuri/communityhub-api:1.2
+        name: communityhub-api-app
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 3000
+        env:
+        - name: DB_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: mongo-secret
+              key: mongo-user
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mongo-secret
+              key: mongo-password
+        - name: DB_URL
+          valueFrom:
+            configMapKeyRef:
+              name: mongo-config
+              key: mongo-url
+        - name: NODEPORT
+          value: '3000'
+
+        
