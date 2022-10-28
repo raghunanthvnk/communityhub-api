@@ -1,13 +1,13 @@
 pipeline {
   environment {
-    TAG = sh(
-        returnStdout: true,
-        script: 'git describe --tags --always'
-    ).trim()
-    BRANCH_TAG = sh(
-        returnStdout: true,
-        script: 'echo ${GIT_BRANCH} | cut -d "/" -f 2'
-    )
+    // TAG = sh(
+    //     returnStdout: true,
+    //     script: 'git describe --tags --always'
+    // ).trim()
+    // BRANCH_TAG = sh(
+    //     returnStdout: true,
+    //     script: 'echo ${GIT_BRANCH} | cut -d "/" -f 2'
+    // )
     MASTER_REPO = ''
     imagename = "raghunathkoppuravuri/communityhub-api"
     registryCredential = 'dockerhub_credentials'
@@ -34,7 +34,7 @@ pipeline {
         // }
         dir(".") {
           script {
-            dockerImage = docker.build("${REGISTRY_NAME}:${TAG}", "-f ${DOCKERFILE} .")
+            dockerImage = docker.build("${REGISTRY_NAME}:1.5", "-f ${DOCKERFILE} .")
           }
         }
       }
@@ -44,7 +44,7 @@ pipeline {
         script {
             docker.withRegistry( '', registryCredential ) {
             dockerImage.push("$BUILD_NUMBER")
-            dockerImage.push(env.BRANCH_TAG)
+            dockerImage.push("$GIT_BRANCH")
 
             if (env.GIT_BRANCH == 'origin/master') {
               dockerImage.push('latest')
