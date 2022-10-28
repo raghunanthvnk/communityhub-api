@@ -39,7 +39,7 @@ pipeline {
         }
       }
     }
-    stage('Deploy Image') {
+    stage('Deploy Image to Hub') {
       steps{
         script {
             docker.withRegistry( '', registryCredential ) {
@@ -59,6 +59,42 @@ pipeline {
         bat "docker rmi $imagename:$BUILD_NUMBER"
         bat "docker rmi $imagename:latest"
  
+      }
+    }
+    stage('deploy to AKS') {
+      when {
+        expression { env.GIT_BRANCH == 'origin/master' }
+      }
+      steps {
+        dir(".configrepo") {
+          checkout([
+              $class                           : 'GitSCM',
+              branches                         : [[name: '*/master']],
+              doGenerateSubmoduleConfigurations: false,
+              extensions                       : [[$class: 'CleanCheckout']],
+              submoduleCfg                     : [],
+              userRemoteConfigs                : [[credentialsId: 'github_credentials', url: 'https://github.com/raghunanthvnk/communityhub-api.git']]
+          ])
+
+          sh '''
+               #!/bin/bash
+               curl -sL -o yq https://github.com/mikefarah/yq/releases/download/3.3.4/yq_linux_amd64 && chmod a+x yq
+               '''
+
+          sh '''
+               #UPDATE TAG FOR AKS 
+               ./yq w --inplace k8s/kustomization.yaml \
+               'images.(name==docker.io/raghunathkoppuravuri/communityhub-api).newTag' \
+               $BUILD_NUMBER \
+               --style=double
+
+               git add dev/kustomization.yaml
+               git config --global user.email "kraghunathvnk@gmail.com"
+               git config --global user.name "kraghu456"
+               git commit -m "Update communityhub-api image tag to $BUILD_NUMBER."
+               git push origin HEAD:refs/heads/master
+               '''
+        }
       }
     }
   }
