@@ -16,16 +16,26 @@ pipeline {
   }
   agent any
   stages {
-    stage('Cloning Git') {
-      steps {
-        git([url: 'https://github.com/raghunanthvnk/communityhub-api.git', branch: 'master', credentialsId: 'github_credentials'])
+    // stage('Cloning Git') {
+    //   steps {
+    //     git([url: 'https://github.com/raghunanthvnk/communityhub-api.git', branch: 'master', credentialsId: 'github_credentials'])
  
+    //   }
+    // }
+    stage('init') {
+      steps {
+        checkout scm
       }
     }
     stage('Building image') {
       steps{
-        script {
-          dockerImage = docker.build("${imagename}:${TAG}", "-f ${DOCKERFILE} .")
+        // script {
+        //   dockerImage = docker.build("${imagename}:${TAG}", "-f ${DOCKERFILE} .")
+        // }
+        dir(".") {
+          script {
+            dockerImage = docker.build("${REGISTRY_NAME}:${TAG}", "-f ${DOCKERFILE} .")
+          }
         }
       }
     }
