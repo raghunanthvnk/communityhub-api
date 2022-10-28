@@ -11,7 +11,7 @@ pipeline {
     MASTER_REPO = ''
     imagename = "raghunathkoppuravuri/communityhub-api"
     registryCredential = 'dockerhub_credentials'
-    DOCKERFILE = './CommunityHub/Dockerfile'
+    DOCKERFILE = 'Dockerfile'
     dockerImage = ''
   }
   agent any
