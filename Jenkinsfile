@@ -34,7 +34,7 @@ pipeline {
         // }
         dir(".") {
           script {
-            dockerImage = docker.build("${REGISTRY_NAME}:1.5", "-f ${DOCKERFILE} .")
+            dockerImage = docker.build("${imagename}:1.5", "-f ${DOCKERFILE} .")
           }
         }
       }
