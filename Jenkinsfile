@@ -45,7 +45,7 @@ pipeline {
             docker.withRegistry( '', registryCredential ) {
             dockerImage.push()
             dockerImage.push("$BUILD_NUMBER")
-            dockerImage.push("$GIT_BRANCH")
+           
 
             if (env.GIT_BRANCH == 'origin/master') {
               dockerImage.push('latest')
