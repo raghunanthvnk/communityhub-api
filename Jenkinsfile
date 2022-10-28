@@ -1,10 +1,10 @@
 pipeline {
   environment {
-    TAG = sh(
+    TAG = bat(
         returnStdout: true,
         script: 'git describe --tags --always'
     ).trim()
-    BRANCH_TAG = sh(
+    BRANCH_TAG = bat(
         returnStdout: true,
         script: 'echo ${GIT_BRANCH} | cut -d "/" -f 2'
     )
