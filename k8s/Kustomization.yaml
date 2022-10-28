@@ -20,4 +20,4 @@ patchesStrategicMerge:
   - communityhub-deployment.yaml
 images:
   - name: raghunathkoppuravuri/communityhub-api
-    newTag: "1.3"
+    newTag: "15"
