@@ -1,9 +1,9 @@
 pipeline {
   environment {
-    // TAG = sh(
-    //     returnStdout: true,
-    //     script: 'git describe --tags --always'
-    // ).trim()
+    TAG = bat(
+        returnStdout: true,
+        script: 'git describe --tags --always'
+    ).trim()
     // BRANCH_TAG = sh(
     //     returnStdout: true,
     //     script: 'echo ${GIT_BRANCH} | cut -d "/" -f 2'
@@ -76,12 +76,12 @@ pipeline {
               userRemoteConfigs                : [[credentialsId: 'github_credentials', url: 'https://github.com/raghunanthvnk/communityhub-api.git']]
           ])
 
-          sh '''
+          bat '''
                #!/bin/bash
                curl -sL -o yq https://github.com/mikefarah/yq/releases/download/3.3.4/yq_linux_amd64 && chmod a+x yq
                '''
 
-          sh '''
+          bat '''
                #UPDATE TAG FOR AKS 
                ./yq w --inplace k8s/kustomization.yaml \
                'images.(name==docker.io/raghunathkoppuravuri/communityhub-api).newTag' \
