@@ -66,35 +66,39 @@ pipeline {
         expression { env.GIT_BRANCH == 'origin/master' }
       }
       steps {
-        dir(".configrepo") {
-          checkout([
-              $class                           : 'GitSCM',
-              branches                         : [[name: '*/master']],
-              doGenerateSubmoduleConfigurations: false,
-              extensions                       : [[$class: 'CleanCheckout']],
-              submoduleCfg                     : [],
-              userRemoteConfigs                : [[credentialsId: 'github_credentials', url: 'https://github.com/raghunanthvnk/communityhub-api.git']]
-          ])
+        // dir(".configrepo") {
+        //   checkout([
+        //       $class                           : 'GitSCM',
+        //       branches                         : [[name: '*/master']],
+        //       doGenerateSubmoduleConfigurations: false,
+        //       extensions                       : [[$class: 'CleanCheckout']],
+        //       submoduleCfg                     : [],
+        //       userRemoteConfigs                : [[credentialsId: 'github_credentials', url: 'https://github.com/raghunanthvnk/communityhub-api.git']]
+        //   ])
 
-          bat '''
-               #!/bin/bash
-               curl -sL -o yq https://github.com/mikefarah/yq/releases/download/3.3.4/yq_linux_amd64 && chmod a+x yq
-               '''
+        //   bat '''
+        //        #!/bin/bash
+        //        curl -sL -o yq https://github.com/mikefarah/yq/releases/download/3.3.4/yq_linux_amd64 && chmod a+x yq
+        //        '''
 
-          bat '''
-               #UPDATE TAG FOR AKS 
-               ./yq w --inplace k8s/kustomization.yaml \
-               'images.(name==docker.io/raghunathkoppuravuri/communityhub-api).newTag' \
-               $BUILD_NUMBER \
-               --style=double
+        //   bat '''
+        //        #UPDATE TAG FOR AKS 
+        //        ./yq w --inplace k8s/kustomization.yaml \
+        //        'images.(name==docker.io/raghunathkoppuravuri/communityhub-api).newTag' \
+        //        $BUILD_NUMBER \
+        //        --style=double
 
-               git add dev/kustomization.yaml
-               git config --global user.email "kraghunathvnk@gmail.com"
-               git config --global user.name "kraghu456"
-               git commit -m "Update communityhub-api image tag to $BUILD_NUMBER."
-               git push origin HEAD:refs/heads/master
-               '''
-        }
+        //        git add dev/kustomization.yaml
+        //        git config --global user.email "kraghunathvnk@gmail.com"
+        //        git config --global user.name "kraghu456"
+        //        git commit -m "Update communityhub-api image tag to $BUILD_NUMBER."
+        //        git push origin HEAD:refs/heads/master
+        //        '''
+           
+        // }
+         script {
+            kubernetesDeploy(configs:"k8s/kustomization.yaml",kubeconfigId:"kubectlconfig")
+            }
       }
     }
   }
