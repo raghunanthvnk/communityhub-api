@@ -45,8 +45,8 @@ pipeline {
     }
     stage('Remove Unused docker image') {
       steps{
-        sh "docker rmi $imagename:$BUILD_NUMBER"
-         sh "docker rmi $imagename:latest"
+        bat "docker rmi $imagename:$BUILD_NUMBER"
+        bat "docker rmi $imagename:latest"
  
       }
     }
