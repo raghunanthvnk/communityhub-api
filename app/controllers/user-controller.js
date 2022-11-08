@@ -76,7 +76,7 @@ const Login = async (req, res, next) =>{
         { user_id: user._id, username,email:user.email },
         process.env.SECRET,
         {
-          expiresIn: "5m",
+          expiresIn: "5h",
         }
       );
 

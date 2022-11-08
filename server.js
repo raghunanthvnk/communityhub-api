@@ -10,6 +10,7 @@ const http = require('http'),
       mongoose = require('mongoose');
       dotenv = require('dotenv');
 dotenv.config();
+const helmet = require('helmet')
 
 const hostname = config.hostname;
 const port = config.port;
@@ -22,19 +23,33 @@ const userRoutes = require('./app/routes/user-routes');
 
 app.use(bodyParser.json());
 //security 
-app.use(function(req, res, next) { //allow cross origin requests
-    res.setHeader("Access-Control-Allow-Methods", "POST, PUT, OPTIONS, DELETE, GET");
-    res.header("Access-Control-Allow-Origin", config.ClientApplicationUrl);
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-    res.header("Access-Control-Allow-Credentials", true);
-    next();
-});
+// app.use(function(req, res, next) { //allow cross origin requests
+//     res.setHeader("Access-Control-Allow-Origin", '*');
+//     res.setHeader("Access-Control-Allow-Headers", 'Origin, X-Requested-With, Content-Type, Accept, Authorization,x-access-token,Referer');
+//     res.setHeader("Access-Control-Allow-Methods", 'POST, PUT, OPTIONS, DELETE, GET');
+//     // res.setHeader("Access-Control-Allow-Credentials", true);
+//     next();
+// });
 
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader(
+    'Access-Control-Allow-Headers',
+    'Origin, X-Requested-With, Content-Type, Accept, Authorization,x-access-token'
+  );
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE');
+  next();
+});
+// Setup Helmet and CORS configuration
+// app.use(helmet.hidePoweredBy())
+// Disabling cors as per sonar suggestion.
+// Also cors are handle at ingress level
+// app.use(cors())    
 
 //routes
-app.use('/api/HubCategory',auth, hubCategoryRoutes);
-app.use('/api/HubMaster',auth, hubMasterRoutes);
-app.use('/api/Upload',auth,fileUploadRoutes);
+app.use('/api/HubCategory', hubCategoryRoutes);
+app.use('/api/HubMaster', hubMasterRoutes);
+app.use('/api/Upload',fileUploadRoutes);
 app.use('/api/user',userRoutes);
 
 console.log('db url recieved ' + process.env.DB_URL);

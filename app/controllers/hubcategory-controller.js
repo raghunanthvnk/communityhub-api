@@ -42,14 +42,12 @@ const getHubCategoryList = async (req, res, next) => {
               'foreignField': '_id', 
               'as': 'hubs'
             }
-          }, 
-          {
+          }, {
             '$unwind': {
               'path': '$hubs', 
               'preserveNullAndEmptyArrays': true
             }
-          }, 
-          {
+          }, {
             '$group': {
               '_id': {
                 'name': '$name', 
@@ -57,7 +55,8 @@ const getHubCategoryList = async (req, res, next) => {
                 'isdefaultbookingtime': '$isdefaultbookingtime', 
                 'updatedby': '$updatedby', 
                 'createdby': '$createdby', 
-                'isactive': '$isactive'
+                'isactive': '$isactive', 
+                'id': '$_id'
               }, 
               'NoOfHubs': {
                 '$sum': {
@@ -76,6 +75,7 @@ const getHubCategoryList = async (req, res, next) => {
           }, {
             '$project': {
               '_id': 0, 
+              'id': '$_id.id', 
               'name': '$_id.name', 
               'description': '$_id.description', 
               'createdby': '$_id.createdby', 
