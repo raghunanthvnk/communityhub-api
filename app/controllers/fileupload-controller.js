@@ -22,15 +22,22 @@ filename: function (req, file, cb) {
 
 var upload = multer({ //multer settings
             storage: storage
-            // ,fileFilter: function(_req, file, cb){
-            //     checkFileType(_req,file, cb);
-            //     cb(null, true);
-            // }
+            ,fileFilter: function(_req, file, cb){
+                let isvalid= checkFileType(_req,file, cb);
+                console.log(isvalid)
+                if(isvalid){cb(null, true);}
+                else{
+                    cb(null, false);
+                }
+               // cb(null, true);
+            }
         }).single('file');
 function checkFileType(_req,file, cb){
     let array_of_allowed_files;
     let array_of_allowed_file_types;
     let allowed_file_size;
+   
+    let mimeType = file.mimetype;
 
     if(_req.url=='/image'){
         // Array of allowed files
@@ -52,13 +59,16 @@ function checkFileType(_req,file, cb){
     );
 
     // Check if the uploaded file is allowed
-    if (!array_of_allowed_files.includes(file_extension) || !array_of_allowed_file_types.includes(image.memetype)) {
+    if (!array_of_allowed_files.includes(file_extension) || !array_of_allowed_file_types.includes(mimeType)) {
          cb('Error: Invalid file.!')
+         return false;
     }
 
     if ((file.size / (1024 * 1024)) > allowed_file_size) {                  
          cb('Error: File too large..!')
-    }       
+         return false;
+    }
+    return true       
 }
 /** API path that will upload the excel files */
 const uploadExcelFile = async (req, res, next) =>{
