@@ -2,10 +2,10 @@ const express = require('express')
 app = express(),
 xlsx=require('xlsx'),
 async= require('async'),
-multer  = require('multer')
-// fs = require('fs');
-
-
+multer  = require('multer'),
+Appointments = require('../models/appointments');
+FileUpload = require('../models/fileuploads');
+var fs = require("fs"); // Load the filesystem module
 
 /** Upload code */
 
@@ -24,7 +24,7 @@ var upload = multer({ //multer settings
             storage: storage
             ,fileFilter: function(_req, file, cb){
                 let isvalid= checkFileType(_req,file, cb);
-                console.log(isvalid)
+              
                 if(isvalid){cb(null, true);}
                 else{
                     cb(null, false);
@@ -70,10 +70,16 @@ function checkFileType(_req,file, cb){
     }
     return true       
 }
+
+function convertDateExcel (excelDate) {
+    // Get the number of milliseconds from Unix epoch.
+    const unixTime = (excelDate - 25569) * 86400 * 1000;
+    return new Date(unixTime);
+}
 /** API path that will upload the excel files */
 const uploadExcelFile = async (req, res, next) =>{
-    upload(req,res,function(err){
-        console.log(req.file);
+       upload(req,res,function(err){
+        
         if(err){
              res.json({error_code:1,err_desc:err});
              return;
@@ -82,7 +88,24 @@ const uploadExcelFile = async (req, res, next) =>{
         var workbook = xlsx.readFile('./uploads/'+req.file.filename);
         var sheet_name_list = workbook.SheetNames;
         var data= xlsx.utils.sheet_to_json(workbook.Sheets[sheet_name_list[0]]);
-        res.send(data);
+        var appointments= new Appointments();
+        appointments=data;
+        InsertFileInfo(
+        req.file.filename,
+        req.file.path,
+        'Appointments',
+        req.file.size,
+        'admin'
+        ).then(function(fileres){
+            console.log(fileres)
+            var modifieddata= appointments.map(obj => ({ ...obj,fileUploadId:fileres._id }))
+            Appointments.insertMany(modifieddata);
+          
+            })
+        .catch((err) => {
+        })
+       
+        res.send(appointments);
     });
 };
 
@@ -101,6 +124,20 @@ const uploadImageFile = async (req, res, next) =>{
     });
 };
 
+const InsertFileInfo = async (filename,path,type,size,userid)=>{
+
+  var fileinfo= new FileUpload({
+    filename,
+    path,
+    type,
+    size,
+    userid,
+    isactive:true
+  });
+  await fileinfo.save();
+
+  return fileinfo;
+};
 
 exports.uploadImageFile = uploadImageFile;
 
