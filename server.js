@@ -20,6 +20,7 @@ const hubCategoryRoutes = require('./app/routes/hubcategory-routes');
 const hubMasterRoutes = require('./app/routes/hubmaster-routes');
 const fileUploadRoutes = require('./app/routes/fileupload-routes');
 const userRoutes = require('./app/routes/user-routes');
+const appointmentRoutes = require('./app/routes/appointment-routes');
 
 app.use(bodyParser.json());
 //security 
@@ -51,6 +52,8 @@ app.use('/api/HubCategory', hubCategoryRoutes);
 app.use('/api/HubMaster', hubMasterRoutes);
 app.use('/api/Upload',fileUploadRoutes);
 app.use('/api/user',userRoutes);
+app.use('/api/appointments',appointmentRoutes);
+
 
 console.log('db url recieved ' + process.env.DB_URL);
 console.log('db username recieved ' + process.env.DB_USERNAME);

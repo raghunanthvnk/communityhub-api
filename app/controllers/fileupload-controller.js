@@ -139,6 +139,32 @@ const InsertFileInfo = async (filename,path,type,size,userid)=>{
   return fileinfo;
 };
 
+const getFileUploadList = async (req, res, next) => {
+  
+    let fileUploadList;
+    try {
+        fileUploadList = await FileUpload.find();
+         // fileUploadList =  await FileUpload.aggregate(aggragatequery)
+    } catch (err) {
+      console.log(err)
+      const error = new HttpError(
+        'Something went wrong, could not get files uploaded List.',
+        500
+      );
+      return next(error);
+    }
+  
+    if (!fileUploadList) {
+      const error = new HttpError(
+        'No file uploaded.',
+        404
+      );
+      return next(error);
+    }
+  
+    res.json({ fileUploadList});
+  };
 exports.uploadImageFile = uploadImageFile;
 
 exports.uploadExcelFile = uploadExcelFile;
+exports.getFileUploadList = getFileUploadList;

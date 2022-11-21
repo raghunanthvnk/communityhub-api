@@ -5,6 +5,6 @@ const fileUploadController = require('../controllers/fileupload-controller');
 
 router.post('/xls',fileUploadController.uploadExcelFile);
 router.post('/Image',fileUploadController.uploadImageFile);
-
+router.get('/',fileUploadController.getFileUploadList);
 
 module.exports = router;

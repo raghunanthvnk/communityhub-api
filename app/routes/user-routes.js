@@ -18,7 +18,21 @@ router.post(
   ],
   userController.RegisterUser
   );
-
+  router.post(
+    '/updateUser',
+      [
+      check('first_name').not().isEmpty(),
+      check('first_name').isLength({ min: 1 }),
+      check('last_name').not().isEmpty(),
+      check('last_name').isLength({ min: 1 }),
+      check('username').not().isEmpty(),
+      check('username').isLength({ min:7 }),
+      check('password').not().isEmpty(),
+      check('password').isLength({ min:7 }),
+      check('email').not().isEmpty()
+      ],
+      userController.UpdateUser
+      );
 router.post('/login',
 [
 check('username').not().isEmpty(),
