@@ -20,7 +20,7 @@ filename: function (req, file, cb) {
 }
 });
 
-var upload = multer({ //multer settings
+const upload = multer({ //multer settings
             storage: storage
             ,fileFilter: function(_req, file, cb){
                 let isvalid= checkFileType(_req,file, cb);
@@ -46,12 +46,20 @@ function checkFileType(_req,file, cb){
         // Allowed file size in mb
          allowed_file_size = 2;
     }
-    if(_req.url=='/xls'){
+    else if(_req.url=='/xls'){
          array_of_allowed_files = ['xls', 'xlsx'];
          array_of_allowed_file_types = 
         ['application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'];
         // Allowed file size in mb
          allowed_file_size = 2;
+    }
+    else
+    {
+       // Array of allowed files
+       array_of_allowed_files = ['png', 'jpeg', 'jpg', 'gif'];
+       array_of_allowed_file_types = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif'];
+      // Allowed file size in mb
+       allowed_file_size = 2;
     }  
     // Get the extension of the uploaded file
     const file_extension = file.originalname.slice(
@@ -168,3 +176,4 @@ exports.uploadImageFile = uploadImageFile;
 
 exports.uploadExcelFile = uploadExcelFile;
 exports.getFileUploadList = getFileUploadList;
+exports.fileupload=upload;

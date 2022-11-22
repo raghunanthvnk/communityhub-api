@@ -1,6 +1,7 @@
 // importing user context
 const User = require("../models/user");
 const { validationResult } = require('express-validator');
+const HttpError = require('../middleware/http-error');
 const express = require("express"),
   bcrypt = require("bcrypt"),
   jwt = require("jsonwebtoken"),
@@ -61,6 +62,34 @@ const UpdateUser = async (req, res, next) => {
       new HttpError('Invalid inputs passed, please check your data.', 422)
     );
   }
+  const { first_name, last_name, email, username } =
+  req.body;
+  
+  // Validate user input
+  if (!(email && first_name && last_name && username)) {
+    res.status(400).send("All input is required");
+  }
+
+  // check if user already exist
+  // Validate if user exist in our database
+  const oldUser = await User.findOne({ email });
+  oldUser.first_name=first_name
+  oldUser.last_name=last_name
+  oldUser.username=username
+  oldUser.image=req.file.filename;
+  //oldUser.email=email
+  try {
+    await oldUser.save();
+  } catch (err) {
+    const error = new HttpError(
+      'Something went wrong, could not update user details.',
+      500
+    );
+    return next(error);
+  }
+
+  res.status(200).json({ oldUser: oldUser.toObject({ getters: true }) });
+
 
 };
 

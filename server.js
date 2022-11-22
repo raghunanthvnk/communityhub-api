@@ -22,7 +22,19 @@ const fileUploadRoutes = require('./app/routes/fileupload-routes');
 const userRoutes = require('./app/routes/user-routes');
 const appointmentRoutes = require('./app/routes/appointment-routes');
 
+// Parse URL-encoded bodies (as sent by HTML forms)
+//app.use(express.urlencoded());
+app.use(bodyParser.urlencoded({ extended:false}))
+
+// Parse JSON bodies (as sent by API clients)
 app.use(bodyParser.json());
+// app.use(express.json());
+
+//Maps the static content in the /uploads folder
+// to the root of your web application. So the
+app.use(express.static('uploads'));
+app.use(express.static(__dirname + '/uploads'));
+
 //security 
 // app.use(function(req, res, next) { //allow cross origin requests
 //     res.setHeader("Access-Control-Allow-Origin", '*');
