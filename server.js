@@ -1,5 +1,4 @@
-const http = require('http'),
-      express = require('express')
+const express = require('express')
       app = express(),
       bodyParser = require('body-parser'),
       expressSanitizer = require('express-sanitizer');
@@ -9,6 +8,9 @@ const http = require('http'),
       config = require('./config/config');
       mongoose = require('mongoose');
       dotenv = require('dotenv');
+      fs = require('fs');
+      HttpError = require('./app/middleware/http-error');
+      path = require('path')
 dotenv.config();
 const helmet = require('helmet')
 
@@ -23,27 +25,16 @@ const userRoutes = require('./app/routes/user-routes');
 const appointmentRoutes = require('./app/routes/appointment-routes');
 
 // Parse URL-encoded bodies (as sent by HTML forms)
-//app.use(express.urlencoded());
 app.use(bodyParser.urlencoded({ extended:false}))
 
 // Parse JSON bodies (as sent by API clients)
 app.use(bodyParser.json());
-// app.use(express.json());
 
-//Maps the static content in the /uploads folder
-// to the root of your web application. So the
-app.use(express.static('uploads'));
-app.use(express.static(__dirname + '/uploads'));
+
+//Serves all the request which includes /images in the url from Uploads folder
+app.use('/images', express.static(path.join(__dirname, 'uploads')))
 
 //security 
-// app.use(function(req, res, next) { //allow cross origin requests
-//     res.setHeader("Access-Control-Allow-Origin", '*');
-//     res.setHeader("Access-Control-Allow-Headers", 'Origin, X-Requested-With, Content-Type, Accept, Authorization,x-access-token,Referer');
-//     res.setHeader("Access-Control-Allow-Methods", 'POST, PUT, OPTIONS, DELETE, GET');
-//     // res.setHeader("Access-Control-Allow-Credentials", true);
-//     next();
-// });
-
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader(
@@ -51,13 +42,9 @@ app.use((req, res, next) => {
     'Origin, X-Requested-With, Content-Type, Accept, Authorization,x-access-token'
   );
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE');
+  // res.setHeader("Access-Control-Allow-Credentials", true);
   next();
 });
-// Setup Helmet and CORS configuration
-// app.use(helmet.hidePoweredBy())
-// Disabling cors as per sonar suggestion.
-// Also cors are handle at ingress level
-// app.use(cors())    
 
 //routes
 app.use('/api/HubCategory', hubCategoryRoutes);
@@ -65,11 +52,24 @@ app.use('/api/HubMaster', hubMasterRoutes);
 app.use('/api/Upload',fileUploadRoutes);
 app.use('/api/user',userRoutes);
 app.use('/api/appointments',appointmentRoutes);
+app.use((req, res, next) => {
+  const error = new HttpError('Could not find this route.', 404);
+  throw error;
+});
 
+app.use((error, req, res, next) => {
+  if (req.file) {
+    fs.unlink(req.file.path, err => {
+      console.log(err);
+    });
+  }
+  if (res.headerSent) {
+    return next(error);
+  }
+  res.status(error.code || 500);
+  res.json({ message: error.message || 'An unknown error occurred!' });
+});
 
-console.log('db url recieved ' + process.env.DB_URL);
-console.log('db username recieved ' + process.env.DB_USERNAME);
-console.log('db password recieved ' + process.env.DB_PASSWORD);
 mongoose
   .connect(
      `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@${process.env.DB_URL}/CommunityHub?retryWrites=true&w=majority`
