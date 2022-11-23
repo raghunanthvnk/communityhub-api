@@ -5,12 +5,11 @@ const HttpError = require('../middleware/http-error');
 const Appointments = require('../models/appointments');
 
 
-
 const getAppointmentList = async (req, res, next) => {
-  
+    const fileUploadId = req.params.fid;
     let appointmentList;
     try {
-         appointmentList = await Appointments.find();
+         appointmentList = await Appointments.findOne({fileUploadId:fileUploadId });
          // appointmentList =  await Appointments.aggregate(aggragatequery)
     } catch (err) {
       console.log(err)
@@ -29,7 +28,7 @@ const getAppointmentList = async (req, res, next) => {
       return next(error);
     }
   
-    res.json({ appointmentList});
+    res.status(200).json({ appointmentList});
   };
 
 

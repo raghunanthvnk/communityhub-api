@@ -4,6 +4,6 @@ const HttpError = require('../middleware/http-error');
 const router = express.Router();
 const appointmentController = require('../controllers/appointment-controller');
 
-router.get('/',appointmentController.getAppointmentList);
+router.get('/:fid',appointmentController.getAppointmentList);
 
 module.exports = router;
